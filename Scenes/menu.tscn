@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://cs101753im6dn"]
+
+[ext_resource type="Script" path="res://Scripts/menu.gd" id="1_qfh0d"]
+
+[node name="Menu" type="Node2D"]
+script = ExtResource("1_qfh0d")
+
+[node name="Human" type="Button" parent="."]
+offset_right = 43.0
+offset_bottom = 29.0
+text = "Human"
+
+[node name="Ai" type="Button" parent="."]
+offset_left = 1.0
+offset_top = 32.0
+offset_right = 66.0
+offset_bottom = 63.0
+text = "Ai
+"
+
+[node name="Algorithm" type="Button" parent="."]
+offset_left = 1.0
+offset_top = 66.0
+offset_right = 66.0
+offset_bottom = 97.0
+text = "Algorithm"
+
+[connection signal="pressed" from="Human" to="." method="_on_human_pressed"]
