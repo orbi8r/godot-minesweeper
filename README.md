@@ -1,4 +1,4 @@
-# Godot Minesweeper
+# Godot Minesweeper (UNDER DEVELOPMENT)
 
 Minesweeper in Godot, but it's Human vs AI vs Algorithm.
 
