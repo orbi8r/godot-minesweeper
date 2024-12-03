@@ -17,25 +17,16 @@ func set_numbers():
 	for cell in Minesweeper.cells:
 		Minesweeper.numbers[cell] = 0
 	
-	for cell in Minesweeper.cells:
-		if cell in Minesweeper.mines:
-			if Vector2i(cell.x + 1,cell.y + 1) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x + 1,cell.y + 1)] += 1
-			if Vector2i(cell.x + 1,cell.y - 1) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x + 1,cell.y - 1)] += 1
-			if Vector2i(cell.x - 1,cell.y + 1) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x - 1,cell.y + 1)] += 1
-			if Vector2i(cell.x - 1,cell.y - 1) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x - 1,cell.y - 1)] += 1
-			if Vector2i(cell.x + 1,cell.y) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x + 1,cell.y)] += 1
-			if Vector2i(cell.x - 1,cell.y) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x - 1,cell.y)] += 1
-			if Vector2i(cell.x,cell.y + 1) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x,cell.y + 1)] += 1
-			if Vector2i(cell.x,cell.y - 1) in Minesweeper.cells:
-				Minesweeper.numbers[Vector2i(cell.x,cell.y - 1)] += 1
-			
+	var directions = [
+		Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0),
+		Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)
+	]
+	
+	for cell in Minesweeper.mines:
+		for direction in directions:
+			var neighbor = cell + direction
+			if neighbor in Minesweeper.cells:
+				Minesweeper.numbers[neighbor] += 1
 			
 	for cell in Minesweeper.cells:
 		if cell not in Minesweeper.mines:

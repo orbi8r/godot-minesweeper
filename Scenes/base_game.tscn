@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://cd1dd6brrdaj0"]
+[gd_scene load_steps=9 format=3 uid="uid://cd1dd6brrdaj0"]
 
 [ext_resource type="Texture2D" uid="uid://ybc1tfrxbajo" path="res://Assets/MinesweeperTiles.png" id="1_5d08s"]
 [ext_resource type="Script" path="res://Scripts/base_game.gd" id="1_emslw"]
 [ext_resource type="Script" path="res://Scripts/mine_number_tiles.gd" id="2_53e6c"]
 [ext_resource type="Script" path="res://Scripts/background_tiles.gd" id="2_qyf34"]
 [ext_resource type="Script" path="res://Scripts/minesweeper_tileset.gd" id="3_vexxw"]
+[ext_resource type="Script" path="res://Scripts/hover_tiles.gd" id="5_ibmng"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_palqs"]
 texture = ExtResource("1_5d08s")
@@ -56,6 +57,7 @@ tile_set = SubResource("TileSet_u6yif")
 [node name="HoverTiles" type="TileMapLayer" parent="Tiles"]
 unique_name_in_owner = true
 tile_set = SubResource("TileSet_u6yif")
+script = ExtResource("5_ibmng")
 
 [node name="ReferenceScripts" type="Node" parent="."]
 
