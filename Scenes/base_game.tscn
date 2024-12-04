@@ -1,11 +1,14 @@
-[gd_scene load_steps=9 format=3 uid="uid://cd1dd6brrdaj0"]
+[gd_scene load_steps=12 format=4 uid="uid://cd1dd6brrdaj0"]
 
 [ext_resource type="Texture2D" uid="uid://ybc1tfrxbajo" path="res://Assets/MinesweeperTiles.png" id="1_5d08s"]
 [ext_resource type="Script" path="res://Scripts/base_game.gd" id="1_emslw"]
 [ext_resource type="Script" path="res://Scripts/mine_number_tiles.gd" id="2_53e6c"]
 [ext_resource type="Script" path="res://Scripts/background_tiles.gd" id="2_qyf34"]
 [ext_resource type="Script" path="res://Scripts/minesweeper_tileset.gd" id="3_vexxw"]
+[ext_resource type="Script" path="res://Scripts/foreground_tiles.gd" id="5_2d7f4"]
 [ext_resource type="Script" path="res://Scripts/hover_tiles.gd" id="5_ibmng"]
+[ext_resource type="Script" path="res://Scripts/flag_tiles.gd" id="5_sbygs"]
+[ext_resource type="Theme" uid="uid://c1d1aaq4v3yrp" path="res://Assets/Theme.tres" id="8_0seqf"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_palqs"]
 texture = ExtResource("1_5d08s")
@@ -38,6 +41,7 @@ script = ExtResource("1_emslw")
 
 [node name="BackgroundTiles" type="TileMapLayer" parent="Tiles"]
 unique_name_in_owner = true
+tile_map_data = PackedByteArray("AAAAAAAAAwAHAAAAAAABAAAAAwAHAAAAAAACAAAAAwAHAAAAAAADAAAAAwAHAAAAAAAEAAAAAwAHAAAAAAAFAAAAAwAHAAAAAAAGAAAAAwAHAAAAAAAHAAAAAwAHAAAAAAAIAAAAAwAHAAAAAAAJAAAAAwAHAAAAAAAJAAEAAwAHAAAAAAAJAAIAAwAHAAAAAAAJAAMAAwAHAAAAAAAJAAQAAwAHAAAAAAAJAAUAAwAHAAAAAAAJAAYAAwAHAAAAAAAJAAcAAwAHAAAAAAAJAAgAAwAHAAAAAAAJAAkAAwAHAAAAAAAIAAkAAwAHAAAAAAAHAAkAAwAHAAAAAAAGAAkAAwAHAAAAAAAFAAkAAwAHAAAAAAAEAAkAAwAHAAAAAAADAAkAAwAHAAAAAAACAAkAAwAHAAAAAAABAAkAAwAHAAAAAAAAAAkAAwAHAAAAAAAAAAgAAwAHAAAAAAAAAAcAAwAHAAAAAAAAAAYAAwAHAAAAAAAAAAUAAwAHAAAAAAAAAAQAAwAHAAAAAAAAAAMAAwAHAAAAAAAAAAIAAwAHAAAAAAAAAAEAAwAHAAAAAAA=")
 tile_set = SubResource("TileSet_u6yif")
 script = ExtResource("2_qyf34")
 
@@ -49,17 +53,81 @@ script = ExtResource("2_53e6c")
 [node name="ForegroundTiles" type="TileMapLayer" parent="Tiles"]
 unique_name_in_owner = true
 tile_set = SubResource("TileSet_u6yif")
+script = ExtResource("5_2d7f4")
 
 [node name="FlagTiles" type="TileMapLayer" parent="Tiles"]
 unique_name_in_owner = true
 tile_set = SubResource("TileSet_u6yif")
+script = ExtResource("5_sbygs")
 
 [node name="HoverTiles" type="TileMapLayer" parent="Tiles"]
 unique_name_in_owner = true
 tile_set = SubResource("TileSet_u6yif")
 script = ExtResource("5_ibmng")
 
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 900.0
+offset_bottom = 900.0
+
+[node name="TimeSpent" type="TextEdit" parent="UI"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 449.0
+offset_bottom = 85.0
+theme = ExtResource("8_0seqf")
+editable = false
+virtual_keyboard_enabled = false
+
+[node name="MinesLeft" type="TextEdit" parent="UI"]
+offset_left = 455.0
+offset_top = 5.0
+offset_right = 895.0
+offset_bottom = 85.0
+theme = ExtResource("8_0seqf")
+editable = false
+virtual_keyboard_enabled = false
+
+[node name="Wins" type="TextEdit" parent="UI"]
+offset_left = 457.0
+offset_top = 815.0
+offset_right = 895.0
+offset_bottom = 895.0
+theme = ExtResource("8_0seqf")
+editable = false
+virtual_keyboard_enabled = false
+
+[node name="Generation" type="TextEdit" parent="UI"]
+offset_left = 5.0
+offset_top = 815.0
+offset_right = 450.0
+offset_bottom = 895.0
+theme = ExtResource("8_0seqf")
+editable = false
+virtual_keyboard_enabled = false
+
+[node name="borders" type="TextEdit" parent="UI"]
+offset_left = 7.0
+offset_top = 92.0
+offset_right = 85.0
+offset_bottom = 810.0
+theme = ExtResource("8_0seqf")
+editable = false
+virtual_keyboard_enabled = false
+
+[node name="borders2" type="TextEdit" parent="UI"]
+offset_left = 816.0
+offset_top = 92.0
+offset_right = 894.0
+offset_bottom = 810.0
+theme = ExtResource("8_0seqf")
+editable = false
+virtual_keyboard_enabled = false
+
 [node name="ReferenceScripts" type="Node" parent="."]
 
 [node name="MinesweeperTileset" type="Node" parent="ReferenceScripts"]
+unique_name_in_owner = true
 script = ExtResource("3_vexxw")

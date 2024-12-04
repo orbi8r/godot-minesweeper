@@ -1,5 +1,7 @@
 extends TileMapLayer
 
+@onready var Minesweeper: Node = %MinesweeperTileset
+
 
 func set_background():
 	

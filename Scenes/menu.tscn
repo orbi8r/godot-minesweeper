@@ -1,28 +1,52 @@
-[gd_scene load_steps=2 format=3 uid="uid://cs101753im6dn"]
+[gd_scene load_steps=3 format=3 uid="uid://cs101753im6dn"]
 
 [ext_resource type="Script" path="res://Scripts/menu.gd" id="1_qfh0d"]
+[ext_resource type="Theme" uid="uid://c1d1aaq4v3yrp" path="res://Assets/Theme.tres" id="2_f7fig"]
 
 [node name="Menu" type="Node2D"]
 script = ExtResource("1_qfh0d")
 
-[node name="Human" type="Button" parent="."]
-offset_right = 43.0
-offset_bottom = 29.0
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 900.0
+offset_bottom = 900.0
+
+[node name="ColorRect" type="ColorRect" parent="UI"]
+layout_mode = 0
+offset_right = 900.0
+offset_bottom = 900.0
+color = Color(0.903157, 0.986631, 0.97077, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -164.5
+offset_top = -164.5
+offset_right = 164.5
+offset_bottom = 164.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="Human" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_f7fig")
 text = "Human"
 
-[node name="Ai" type="Button" parent="."]
-offset_left = 1.0
-offset_top = 32.0
-offset_right = 66.0
-offset_bottom = 63.0
+[node name="Ai" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_f7fig")
 text = "Ai
 "
 
-[node name="Algorithm" type="Button" parent="."]
-offset_left = 1.0
-offset_top = 66.0
-offset_right = 66.0
-offset_bottom = 97.0
+[node name="Algorithm" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_f7fig")
 text = "Algorithm"
 
-[connection signal="pressed" from="Human" to="." method="_on_human_pressed"]
+[connection signal="pressed" from="UI/VBoxContainer/Human" to="." method="_on_human_pressed"]

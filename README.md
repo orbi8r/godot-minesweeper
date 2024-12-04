@@ -14,8 +14,6 @@ Minesweeper in Godot, but it's Human vs AI vs Algorithm.
 
 This project is a Minesweeper game developed using the Godot Engine v4.3. The purpose of this project is to see who is faster in beating Minesweeper: a Human, a Deep RL AI, or an Algorithm. 
 
-It features three modes: Human vs AI vs Algorithm, and uses the Stable Baselines 3 model for Deep Reinforcement Learning AI.
-
 ## Installation
 
 1. Clone the repository:

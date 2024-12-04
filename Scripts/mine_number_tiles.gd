@@ -1,5 +1,7 @@
 extends TileMapLayer
 
+@onready var Minesweeper: Node = %MinesweeperTileset
+
 
 func set_mines():
 	var number_of_minesleft = Minesweeper.MINE_COUNT
@@ -27,7 +29,7 @@ func set_numbers():
 			var neighbor = cell + direction
 			if neighbor in Minesweeper.cells:
 				Minesweeper.numbers[neighbor] += 1
-			
+
 	for cell in Minesweeper.cells:
 		if cell not in Minesweeper.mines:
 			set_cell(cell,Minesweeper.SOURCE_ID,Minesweeper.tile(str(Minesweeper.numbers[cell])))
