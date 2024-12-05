@@ -14,15 +14,15 @@ config/name="godot-minesweeper"
 run/main_scene="res://Scenes/menu.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 
+[autoload]
+
+AiController2d="*res://Scripts/ai_controller_2d.gd"
+
 [display]
 
 window/size/viewport_width=900
 window/size/viewport_height=900
 window/size/resizable=false
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/godot_rl_agents/plugin.cfg")
 
 [input]
 

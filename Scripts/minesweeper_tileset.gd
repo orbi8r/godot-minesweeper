@@ -5,6 +5,7 @@ extends Node
 @export var CELLSIZE : int = 10 #in Pixels
 @export var SOURCE_ID = 3
 @export var MINE_COUNT : int = 8
+var mode = "Human"
 var border = []
 var cells = []
 var mines = []
@@ -14,7 +15,7 @@ var numbers = {}
 var timespent = 0
 var minesleft = 0
 var generation = 0
-var wins = 0
+var wins = -1
 var gamestatus = 0
 
 

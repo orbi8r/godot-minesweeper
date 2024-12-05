@@ -82,6 +82,7 @@ editable = false
 virtual_keyboard_enabled = false
 
 [node name="MinesLeft" type="TextEdit" parent="UI"]
+layout_mode = 0
 offset_left = 455.0
 offset_top = 5.0
 offset_right = 895.0
@@ -91,6 +92,7 @@ editable = false
 virtual_keyboard_enabled = false
 
 [node name="Wins" type="TextEdit" parent="UI"]
+layout_mode = 0
 offset_left = 457.0
 offset_top = 815.0
 offset_right = 895.0
@@ -100,6 +102,7 @@ editable = false
 virtual_keyboard_enabled = false
 
 [node name="Generation" type="TextEdit" parent="UI"]
+layout_mode = 0
 offset_left = 5.0
 offset_top = 815.0
 offset_right = 450.0
@@ -109,6 +112,7 @@ editable = false
 virtual_keyboard_enabled = false
 
 [node name="borders" type="TextEdit" parent="UI"]
+layout_mode = 0
 offset_left = 7.0
 offset_top = 92.0
 offset_right = 85.0
@@ -118,6 +122,7 @@ editable = false
 virtual_keyboard_enabled = false
 
 [node name="borders2" type="TextEdit" parent="UI"]
+layout_mode = 0
 offset_left = 816.0
 offset_top = 92.0
 offset_right = 894.0
@@ -131,3 +136,4 @@ virtual_keyboard_enabled = false
 [node name="MinesweeperTileset" type="Node" parent="ReferenceScripts"]
 unique_name_in_owner = true
 script = ExtResource("3_vexxw")
+MINE_COUNT = 10

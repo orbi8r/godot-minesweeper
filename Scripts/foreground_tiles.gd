@@ -5,12 +5,12 @@ var hovered_cell : Vector2i = Vector2i(-1, -1)
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if event is InputEventMouseMotion and Minesweeper.mode == "Human":
 		hovered_cell = floor(event.position / (Minesweeper.CELLSIZE * (Minesweeper.BOARDSIZE+1)))
 
 
 func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("LeftClick") and hovered_cell != Vector2i(-1, -1):
+	if (Input.is_action_just_pressed("LeftClick") and hovered_cell != Vector2i(-1, -1)) or Minesweeper.mode != "Human":
 		if hovered_cell in Minesweeper.covered_cells and hovered_cell not in Minesweeper.flagged:
 			erase_cell(hovered_cell)
 			Minesweeper.covered_cells.erase(hovered_cell)
@@ -20,9 +20,10 @@ func _process(_delta: float) -> void:
 			elif Minesweeper.numbers.get(hovered_cell, -1) == 0:
 				flood_fill(hovered_cell)
 	
-	if Minesweeper.covered_cells == Minesweeper.mines:
-		Minesweeper.gamestatus = 1
-		Minesweeper.wins += 1
+	if Minesweeper.covered_cells.size() == Minesweeper.mines.size():
+		if Minesweeper.covered_cells == Minesweeper.mines:
+			Minesweeper.gamestatus = 1
+			Minesweeper.wins += 1
 
 
 func flood_fill(cell: Vector2i) -> void:
@@ -50,7 +51,8 @@ func flood_fill(cell: Vector2i) -> void:
 func reveal_all_mines() -> void:
 	for mine in Minesweeper.mines:
 		if mine in Minesweeper.covered_cells:
-			await get_tree().create_timer(0.1).timeout
+			if Minesweeper.mode == "Human":
+				await get_tree().create_timer(0.1).timeout
 			erase_cell(mine)
 			Minesweeper.covered_cells.erase(mine)
 	Minesweeper.gamestatus = 1

@@ -50,3 +50,4 @@ theme = ExtResource("2_f7fig")
 text = "Algorithm"
 
 [connection signal="pressed" from="UI/VBoxContainer/Human" to="." method="_on_human_pressed"]
+[connection signal="pressed" from="UI/VBoxContainer/Ai" to="." method="_on_ai_pressed"]

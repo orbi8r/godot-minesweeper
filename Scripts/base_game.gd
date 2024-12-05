@@ -37,7 +37,7 @@ func _process(delta: float) -> void:
 		previous_wins = Minesweeper.wins
 
 	if Minesweeper.generation != previous_generation:
-		generation.text = "Generation: " + str(Minesweeper.generation)
+		generation.text = "Game Number: " + str(Minesweeper.generation)
 		previous_generation = Minesweeper.generation
 
 
@@ -48,6 +48,7 @@ func reset():
 	Minesweeper.numbers.clear()
 	Minesweeper.timespent = 0
 	Minesweeper.generation += 1
+	Minesweeper.mode = "Human"
 	
 	flag_tiles.erase_all_flags()
 	background_tiles.set_background()
