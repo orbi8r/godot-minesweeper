@@ -25,14 +25,13 @@ var directions = [
 	]
 
 func _process(delta: float) -> void:
-	#test
-	ai_controller.set_array([1,2,3])
 	
 	if Minesweeper.gamestatus == 1:
 		Minesweeper.gamestatus = 0
 		reset()
 	
-	#ai_input_and_reward()
+	ai_controller.observation_array = ai_observation()
+	ai_controller.reward = ai_input_and_reward()
 	
 	Minesweeper.timespent += delta
 	var current_time_spent = floor(Minesweeper.timespent * 10) / 10
@@ -69,44 +68,47 @@ func reset():
 	mine_number_tiles.set_numbers()
 
 
-#func ai_observation():
-	#var obs = []
-	#for cell in Minesweeper.cells:
-		#if cell in Minesweeper.covered_cells:
-			#obs.append(-1)
-		#else:
-			#if cell in Minesweeper.mines:
-				#obs.append(-2)
-			#else:
-				#obs.append(Minesweeper.numbers[cell])
-	#return obs
-#
-#
-#func ai_input_and_reward():
-	#foreground_tiles.hovered_cell = Vector2i.ZERO#ai_controller_2d.cell
-	#
-	#var adjacent_cells = []
-	#for dir in directions:
-		#adjacent_cells.append(previous_cell + dir)
-#
-	#if ai_controller_2d.cell not in Minesweeper.covered_cells:
-		#ai_controller_2d.reward -= 0.3
-	#elif ai_controller_2d.cell in adjacent_cells:
-		#ai_controller_2d.reward += 0.9
-	#elif ai_controller_2d.cell in Minesweeper.mines:
-		#print("Loss",Minesweeper.generation)
-		#ai_controller_2d.reward -= 1
-	#elif Minesweeper.wins != previous_wins:
-		#print("win",Minesweeper.generation)
-		#ai_controller_2d.reward += 2
-	#else:
-		#ai_controller_2d.reward -= 0.3
-	#
-	#if Minesweeper.timespent > 100:
-		#ai_controller_2d.reward -= 1
-		#reset()
-		#
-	#previous_cell = ai_controller_2d.cell
+func ai_observation():
+	var obs = []
+	for cell in Minesweeper.cells:
+		if cell in Minesweeper.covered_cells:
+			obs.append(-1)
+		else:
+			if cell in Minesweeper.mines:
+				obs.append(-2)
+			else:
+				obs.append(Minesweeper.numbers[cell])
+	return obs
+
+
+func ai_input_and_reward():
+	foreground_tiles.hovered_cell = ai_controller.action
+	
+	var adjacent_cells = []
+	for dir in directions:
+		adjacent_cells.append(previous_cell + dir)
+	
+	var reward = 0
+
+	if ai_controller.action not in Minesweeper.covered_cells:
+		reward -= 0.3
+	elif ai_controller.action in adjacent_cells:
+		reward += 0.9
+	elif ai_controller.action in Minesweeper.mines:
+		print("Loss",Minesweeper.generation)
+		reward -= 1
+	elif Minesweeper.wins != previous_wins:
+		print("win",Minesweeper.generation)
+		reward += 2
+	else:
+		reward -= 0.3
+	
+	if Minesweeper.timespent > 100:
+		reward -= 1
+		reset()
+		
+	previous_cell = ai_controller.action
+	return reward
 
 
 ### AI SIDE

@@ -1,10 +1,11 @@
 import sys
 import socket
-import ast
+import json
+import random
 
 
-def sum_array(array):
-    return sum(array)
+def modeloutput():
+    return [random.randint(1, 7), random.randint(1, 7)]
 
 
 def main():
@@ -20,26 +21,28 @@ def main():
         sock.sendto(initial_message.encode(), server_address)
 
         while True:
-            # Wait for the array from Godot
-            print("Waiting for array...")
-            data, server = sock.recvfrom(4096)
+            # Wait for the data from Godot
+            print("Waiting for data...")
+            data, server = sock.recvfrom(65536)
             message = data.decode()
 
             if message == "close":
                 print("Received close message. Terminating connection.")
                 break
 
-            array = ast.literal_eval(message)
-            print(f"Received array: {array}")
+            try:
+                data_received = json.loads(message)
+                observation = data_received["observation"]
+                reward = data_received["reward"]
+                print(f"Received observation: {observation}, reward: {reward}")
 
-            # Process the array (e.g., sum the elements)
-            result = sum_array(array)
-            print(f"Sum of array: {result}")
-
-            # Send the result back to Godot
-            print(f"Sending result: {result}")
-            sock.sendto(str(result).encode(), server)
-
+                # Process the observation and reward to generate output
+                output = modeloutput()  # Replace with your model's output
+                output_message = json.dumps({"output": output})
+                print(f"Sending output: {output}")
+                sock.sendto(output_message.encode(), server)
+            except json.JSONDecodeError as e:
+                print("Error decoding JSON from Godot:", e)
     finally:
         print("Closing socket")
         sock.close()
