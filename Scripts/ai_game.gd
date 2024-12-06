@@ -10,7 +10,7 @@ extends Node2D
 @onready var mines_left: TextEdit = $UI/MinesLeft
 @onready var wins: TextEdit = $UI/Wins
 @onready var generation: TextEdit = $UI/Generation
-@onready var ai_controller_2d: Node2D = $AIController2D
+@onready var ai_controller: Node = %ai_controller
 
 var previous_time_spent = -1.0
 var previous_mines_left = -1
@@ -25,6 +25,9 @@ var directions = [
 	]
 
 func _process(delta: float) -> void:
+	#test
+	ai_controller.set_array([1,2,3])
+	
 	if Minesweeper.gamestatus == 1:
 		Minesweeper.gamestatus = 0
 		reset()

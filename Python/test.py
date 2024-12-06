@@ -19,20 +19,26 @@ def main():
         print(f"Sending: {initial_message}")
         sock.sendto(initial_message.encode(), server_address)
 
-        # Wait for the array from Godot
-        print("Waiting for array...")
-        data, server = sock.recvfrom(4096)
-        message = data.decode()
-        array = ast.literal_eval(message)
-        print(f"Received array: {array}")
+        while True:
+            # Wait for the array from Godot
+            print("Waiting for array...")
+            data, server = sock.recvfrom(4096)
+            message = data.decode()
 
-        # Process the array (e.g., sum the elements)
-        result = sum_array(array)
-        print(f"Sum of array: {result}")
+            if message == "close":
+                print("Received close message. Terminating connection.")
+                break
 
-        # Send the result back to Godot
-        print(f"Sending result: {result}")
-        sock.sendto(str(result).encode(), server)
+            array = ast.literal_eval(message)
+            print(f"Received array: {array}")
+
+            # Process the array (e.g., sum the elements)
+            result = sum_array(array)
+            print(f"Sum of array: {result}")
+
+            # Send the result back to Godot
+            print(f"Sending result: {result}")
+            sock.sendto(str(result).encode(), server)
 
     finally:
         print("Closing socket")

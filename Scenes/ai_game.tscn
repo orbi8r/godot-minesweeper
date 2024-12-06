@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=4 uid="uid://bx425lyiw0n5f"]
+[gd_scene load_steps=13 format=4 uid="uid://bx425lyiw0n5f"]
 
 [ext_resource type="Script" path="res://Scripts/ai_game.gd" id="1_yac5p"]
 [ext_resource type="Texture2D" uid="uid://ybc1tfrxbajo" path="res://Assets/MinesweeperTiles.png" id="2_ku7un"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://Scripts/hover_tiles.gd" id="7_ejo5c"]
 [ext_resource type="Theme" uid="uid://c1d1aaq4v3yrp" path="res://Assets/Theme.tres" id="8_we37w"]
 [ext_resource type="Script" path="res://Scripts/minesweeper_tileset.gd" id="9_k226x"]
+[ext_resource type="Script" path="res://Scripts/ai_controller_2d.gd" id="10_viq85"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_palqs"]
 texture = ExtResource("2_ku7un")
@@ -137,3 +138,7 @@ virtual_keyboard_enabled = false
 unique_name_in_owner = true
 script = ExtResource("9_k226x")
 MINE_COUNT = 10
+
+[node name="ai_controller" type="Node" parent="ReferenceScripts"]
+unique_name_in_owner = true
+script = ExtResource("10_viq85")
