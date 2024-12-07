@@ -95,7 +95,6 @@ func ai_input_and_reward():
 	elif ai_controller.action in adjacent_cells:
 		reward += 0.3
 	elif ai_controller.action in Minesweeper.mines:
-		print("Loss",Minesweeper.generation)
 		reward -= 1
 	elif Minesweeper.wins != previous_wins:
 		print("win",Minesweeper.generation)
@@ -103,7 +102,7 @@ func ai_input_and_reward():
 	else:
 		reward -= 0.3
 	
-	if Minesweeper.timespent > 100:
+	if Minesweeper.timespent > 10:
 		reward -= 1
 		reset()
 		

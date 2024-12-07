@@ -5,7 +5,6 @@ var port := 4242
 var python_ip: String = ""
 var python_port: int = 0
 var initial_message_received: bool = false
-var data_sent = false
 
 @onready var ai_game: Node2D = $"../.."
 @onready var ai_controller: Node = $"."
@@ -22,8 +21,11 @@ func _set_reward(value):
 
 func _ready() -> void:
 	# Bind the UDP socket to the port
-	udp_socket.bind(port)
-	print("UDP socket listening on port ", port)
+	var error = udp_socket.bind(port)
+	if error != OK:
+		print("Failed to bind UDP socket to port ", port)
+	else:
+		print("UDP socket listening on port ", port)
 	# Set process modes
 	ai_game.process_mode = Node.PROCESS_MODE_INHERIT  # ai_game will inherit process mode
 	self.process_mode = Node.PROCESS_MODE_ALWAYS  # ai_controller will always process
@@ -37,7 +39,6 @@ func _process(_delta):
 	while udp_socket.get_available_packet_count() > 0:
 		var result = udp_socket.get_packet()
 		var message = result.get_string_from_utf8()
-		print("Received: ", message)
 		
 		if not initial_message_received:
 			# Check for the initial message from the Python script
@@ -48,17 +49,15 @@ func _process(_delta):
 				print("Initial message received from ", python_ip, ":", python_port)
 				# Unpause the scene tree once the connection is established
 				get_tree().paused = false
-				set_game_speed(10)  # Set game speed to 10x
 		else:
 			# Process the result from the Python script
 			var data = JSON.parse_string(message)
-			var output = data["output"]
+			var output = data["action"]
 			action = Vector2i(output[0], output[1])
-			data_sent = false
 
 
 func send_observation_and_reward():
-	if initial_message_received and observation_array.size() == 64 and not data_sent:
+	if initial_message_received and observation_array != []:
 		var data = {
 			"observation": observation_array,
 			"reward": reward,
@@ -66,13 +65,10 @@ func send_observation_and_reward():
 		var message = JSON.stringify(data)
 		udp_socket.set_dest_address(python_ip, python_port)
 		udp_socket.put_packet(message.to_utf8_buffer())
-		print("Sent data: ", message)
-		data_sent = true
 
 
 func _exit_tree():
 	send_close_message()
-	reset_game_speed()  # Reset game speed to normal
 
 
 func send_close_message():
@@ -80,9 +76,3 @@ func send_close_message():
 	udp_socket.set_dest_address(python_ip, python_port)
 	udp_socket.put_packet(message.to_utf8_buffer())
 	print("Sent close message")
-
-func set_game_speed(speed):
-	Engine.time_scale = speed
-
-func reset_game_speed():
-	Engine.time_scale = 1
