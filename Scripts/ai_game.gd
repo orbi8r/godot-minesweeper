@@ -39,8 +39,8 @@ func _process(delta: float) -> void:
 		time_spent.text = "Time: " + str(current_time_spent)
 		previous_time_spent = current_time_spent
 	
-	#rewards_collection += ai_controller_2d.reward
-	#mines_left.text = "Reward: " + str(floor(rewards_collection)) + " (" + str(ai_controller_2d.reward) + ")"
+	rewards_collection += ai_controller.reward
+	mines_left.text = "Reward: " + str(floor(rewards_collection)) + " (" + str(ai_controller.reward) + ")"
 
 	if Minesweeper.wins != previous_wins:
 		wins.text = "Wins: " + str(Minesweeper.wins)
@@ -93,7 +93,7 @@ func ai_input_and_reward():
 	if ai_controller.action not in Minesweeper.covered_cells:
 		reward -= 0.3
 	elif ai_controller.action in adjacent_cells:
-		reward += 0.9
+		reward += 0.3
 	elif ai_controller.action in Minesweeper.mines:
 		print("Loss",Minesweeper.generation)
 		reward -= 1
@@ -109,30 +109,3 @@ func ai_input_and_reward():
 		
 	previous_cell = ai_controller.action
 	return reward
-
-
-### AI SIDE
-#@onready var minesweeper_tileset: Node = %MinesweeperTileset
-#@onready var ai_game: Node2D = $".."
-#
-#var cell : Vector2i = Vector2i.ZERO
-#
-#
-#func get_obs() -> Dictionary:
-	#var obs = ai_game.ai_observation()
-	#return {"obs": []}
-#
-#
-#func get_reward() -> float:
-	#return reward
-#
-#
-#func get_action_space() -> Dictionary:
-	#return {
-		#"ChooseX": {"size": 8, "action_type": "discrete"},
-		#"ChooseY": {"size": 8, "action_type": "discrete"},
-	#}
-#
-#func set_action(action) -> void:
-	#cell.x = action["ChooseX"]+1
-	#cell.y = action["ChooseY"]+1

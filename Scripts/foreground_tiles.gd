@@ -5,7 +5,7 @@ var hovered_cell : Vector2i = Vector2i(-1, -1)
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Minesweeper.mode == "Ai":
+	if event is InputEventMouseMotion and Minesweeper.mode == "Human":
 		hovered_cell = floor(event.position / (Minesweeper.CELLSIZE * (Minesweeper.BOARDSIZE+1)))
 
 
