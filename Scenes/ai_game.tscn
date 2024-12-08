@@ -137,7 +137,7 @@ virtual_keyboard_enabled = false
 [node name="MinesweeperTileset" type="Node" parent="ReferenceScripts"]
 unique_name_in_owner = true
 script = ExtResource("9_k226x")
-MINE_COUNT = 10
+MINE_COUNT = 7
 
 [node name="ai_controller" type="Node" parent="ReferenceScripts"]
 unique_name_in_owner = true

@@ -6,6 +6,9 @@ var python_ip: String = ""
 var python_port: int = 0
 var initial_message_received: bool = false
 
+@onready var Minesweeper: Node = %MinesweeperTileset
+@onready var foreground_tiles: TileMapLayer = %ForegroundTiles
+
 @onready var ai_game: Node2D = $"../.."
 @onready var ai_controller: Node = $"."
 
@@ -13,6 +16,10 @@ var action = Vector2i(0,0)
 @export var observation_array = []
 @export var reward = 0.0:
 	set = _set_reward
+
+var current_action = Vector2i.ZERO  # Initialize current_action
+var previous_observation = []
+var new_observation = []
 
 func _set_reward(value):
 	reward = value
@@ -53,14 +60,30 @@ func _process(_delta):
 			# Process the result from the Python script
 			var data = JSON.parse_string(message)
 			var output = data["action"]
-			action = Vector2i(output[0], output[1])
+			current_action = Vector2i(output["x"], output["y"])  # Update current_action
+			# Update the board with the received action
+			update_board_with_action(current_action)
 
 
 func send_observation_and_reward():
-	if initial_message_received and observation_array != []:
+	if initial_message_received and observation_array.size() == 64:
 		var data = {
 			"observation": observation_array,
 			"reward": reward,
+		}
+		var message = JSON.stringify(data)
+		udp_socket.set_dest_address(python_ip, python_port)
+		udp_socket.put_packet(message.to_utf8_buffer())
+		print(message,action)
+
+
+func send_data():
+	if initial_message_received and previous_observation.size() == 64 and new_observation.size() == 64:
+		var data = {
+			"prev_observation": previous_observation,
+			"new_observation": new_observation,
+			"reward": reward,
+			"action": {"x": current_action.x, "y": current_action.y}
 		}
 		var message = JSON.stringify(data)
 		udp_socket.set_dest_address(python_ip, python_port)
@@ -76,3 +99,21 @@ func send_close_message():
 	udp_socket.set_dest_address(python_ip, python_port)
 	udp_socket.put_packet(message.to_utf8_buffer())
 	print("Sent close message")
+
+
+func update_board_with_action(action_pos: Vector2i):
+	if action_pos in Minesweeper.covered_cells and action_pos not in Minesweeper.flagged:
+		foreground_tiles.erase_cell(action_pos)
+		Minesweeper.covered_cells.erase(action_pos)
+		
+		if action_pos in Minesweeper.mines:
+			foreground_tiles.reveal_all_mines()
+		elif Minesweeper.numbers.get(action_pos, -1) == 0:
+			foreground_tiles.flood_fill(action_pos)
+		else:
+			foreground_tiles.set_cell(action_pos, Minesweeper.SOURCE_ID, Minesweeper.tile(str(Minesweeper.numbers[action_pos])))
+	
+	if Minesweeper.covered_cells.size() == Minesweeper.mines.size():
+		if Minesweeper.covered_cells == Minesweeper.mines:
+			Minesweeper.gamestatus = 1
+			Minesweeper.wins += 1

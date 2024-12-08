@@ -20,19 +20,32 @@ var rewards_collection = 0
 
 var previous_cell = Vector2i.ZERO
 var directions = [
-		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
-		Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)
-	]
+	Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+	Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)
+]
+
+var previous_action = null
+var previous_reward = 0
+
+var previous_observation = null
+var current_action = Vector2i.ZERO  # Initialize current_action
 
 func _process(delta: float) -> void:
-	
 	if Minesweeper.gamestatus == 1:
 		Minesweeper.gamestatus = 0
 		reset()
 	
-	ai_controller.observation_array = ai_observation()
-	ai_controller.reward = ai_input_and_reward()
-	
+	if previous_observation == null:
+		previous_observation = get_current_observation()
+	else:
+		var new_observation = get_current_observation()
+		var reward = calculate_reward()
+		ai_controller.previous_observation = previous_observation
+		ai_controller.new_observation = new_observation
+		ai_controller.reward = reward
+		ai_controller.send_data()
+		previous_observation = new_observation
+
 	Minesweeper.timespent += delta
 	var current_time_spent = floor(Minesweeper.timespent * 10) / 10
 	if current_time_spent != previous_time_spent:
@@ -68,6 +81,37 @@ func reset():
 	mine_number_tiles.set_numbers()
 
 
+func calculate_reward():
+	var reward = 0
+
+	# Additional reward logic
+	if current_action in Minesweeper.mines:
+		reward -= 1
+	else:
+		var adjacent_to_uncovered = false
+		for dir in directions:
+			var adjacent_cell = current_action + dir
+			if adjacent_cell in Minesweeper.cells and adjacent_cell not in Minesweeper.covered_cells:
+				adjacent_to_uncovered = true
+				break
+		
+		if adjacent_to_uncovered:
+			reward += 0.5  # Reward for selecting a cell near uncovered cells
+		else:
+			reward -= 0.5  # Penalize for selecting a cell not near uncovered cells
+
+	# Additional reward for winning
+	if Minesweeper.wins != previous_wins:
+		print("win", Minesweeper.generation)
+		reward += 2
+
+	# Store the current action, and reward as previous
+	previous_action = current_action
+	previous_reward = reward
+
+	return reward
+
+
 func ai_observation():
 	var obs = []
 	for cell in Minesweeper.cells:
@@ -81,30 +125,27 @@ func ai_observation():
 	return obs
 
 
-func ai_input_and_reward():
-	foreground_tiles.hovered_cell = ai_controller.action
-	
-	var adjacent_cells = []
-	for dir in directions:
-		adjacent_cells.append(previous_cell + dir)
-	
-	var reward = 0
+func get_current_observation():
+	var observation = []
+	for cell in Minesweeper.cells:
+		if cell in Minesweeper.covered_cells:
+			observation.append(-1)
+		elif cell in Minesweeper.mines:
+			observation.append(-2)
+		else:
+			observation.append(Minesweeper.numbers.get(cell, 0))
+	return observation
 
-	if ai_controller.action not in Minesweeper.covered_cells:
-		reward -= 0.3
-	elif ai_controller.action in adjacent_cells:
-		reward += 0.3
-	elif ai_controller.action in Minesweeper.mines:
-		reward -= 1
-	elif Minesweeper.wins != previous_wins:
-		print("win",Minesweeper.generation)
-		reward += 2
-	else:
-		reward -= 0.3
-	
-	if Minesweeper.timespent > 10:
-		reward -= 1
-		reset()
-		
-	previous_cell = ai_controller.action
-	return reward
+
+func _on_observation_updated():
+	# Manually send the data when the observation updates
+	var new_observation = get_current_observation()
+	var reward = calculate_reward()
+	var data = {
+		"prev_observation": previous_observation,
+		"new_observation": new_observation,
+		"reward": reward,
+		"action": {"x": current_action.x, "y": current_action.y}
+	}
+	ai_controller.send_data(data)
+	previous_observation = new_observation
