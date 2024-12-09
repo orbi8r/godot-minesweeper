@@ -1,4 +1,4 @@
-extends Node2D
+extends Node2D 
 
 @onready var hover_tiles: TileMapLayer = %HoverTiles
 @onready var flag_tiles: TileMapLayer = %FlagTiles
@@ -28,7 +28,6 @@ var previous_action = null
 var previous_reward = 0
 
 var previous_observation = null
-var current_action = Vector2i.ZERO  # Initialize current_action
 
 func _process(delta: float) -> void:
 	if Minesweeper.gamestatus == 1:
@@ -39,10 +38,8 @@ func _process(delta: float) -> void:
 		previous_observation = get_current_observation()
 	else:
 		var new_observation = get_current_observation()
-		var reward = calculate_reward()
 		ai_controller.previous_observation = previous_observation
 		ai_controller.new_observation = new_observation
-		ai_controller.reward = reward
 		ai_controller.send_data()
 		previous_observation = new_observation
 
@@ -53,7 +50,7 @@ func _process(delta: float) -> void:
 		previous_time_spent = current_time_spent
 	
 	rewards_collection += ai_controller.reward
-	mines_left.text = "Reward: " + str(floor(rewards_collection)) + " (" + str(ai_controller.reward) + ")"
+	mines_left.text = "Reward: " + str(ai_controller.reward) + " (" + str(floor(rewards_collection)) + ")"
 
 	if Minesweeper.wins != previous_wins:
 		wins.text = "Wins: " + str(Minesweeper.wins)
@@ -81,12 +78,14 @@ func reset():
 	mine_number_tiles.set_numbers()
 
 
-func calculate_reward():
+func calculate_reward(current_action):
 	var reward = 0
 
 	# Additional reward logic
 	if current_action in Minesweeper.mines:
 		reward -= 1
+	elif current_action not in Minesweeper.covered_cells and current_action in Minesweeper.cells:
+		reward -= 0.9
 	else:
 		var adjacent_to_uncovered = false
 		for dir in directions:
@@ -98,7 +97,7 @@ func calculate_reward():
 		if adjacent_to_uncovered:
 			reward += 0.5  # Reward for selecting a cell near uncovered cells
 		else:
-			reward -= 0.5  # Penalize for selecting a cell not near uncovered cells
+			reward -= 0.7  # Penalize for selecting a cell not near uncovered cells
 
 	# Additional reward for winning
 	if Minesweeper.wins != previous_wins:
@@ -135,17 +134,3 @@ func get_current_observation():
 		else:
 			observation.append(Minesweeper.numbers.get(cell, 0))
 	return observation
-
-
-func _on_observation_updated():
-	# Manually send the data when the observation updates
-	var new_observation = get_current_observation()
-	var reward = calculate_reward()
-	var data = {
-		"prev_observation": previous_observation,
-		"new_observation": new_observation,
-		"reward": reward,
-		"action": {"x": current_action.x, "y": current_action.y}
-	}
-	ai_controller.send_data(data)
-	previous_observation = new_observation

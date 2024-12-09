@@ -51,3 +51,4 @@ text = "Algorithm"
 
 [connection signal="pressed" from="UI/VBoxContainer/Human" to="." method="_on_human_pressed"]
 [connection signal="pressed" from="UI/VBoxContainer/Ai" to="." method="_on_ai_pressed"]
+[connection signal="pressed" from="UI/VBoxContainer/Algorithm" to="." method="_on_algorithm_pressed"]

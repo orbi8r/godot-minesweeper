@@ -1,4 +1,4 @@
-extends Node
+extends Node 
 
 var udp_socket: PacketPeerUDP = PacketPeerUDP.new()
 var port := 4242
@@ -60,9 +60,17 @@ func _process(_delta):
 			# Process the result from the Python script
 			var data = JSON.parse_string(message)
 			var output = data["action"]
+			var observation = data["observation"]
 			current_action = Vector2i(output["x"], output["y"])  # Update current_action
 			# Update the board with the received action
-			update_board_with_action(current_action)
+			# Convert observation array to integer
+			var int_observation = []
+			for value in observation:
+				int_observation.append(int(value))
+			
+			if current_action != Vector2i.ZERO and int_observation == new_observation:
+				reward = ai_game.calculate_reward(current_action)
+				update_board_with_action(current_action)
 
 
 func send_observation_and_reward():
