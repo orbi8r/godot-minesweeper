@@ -8,19 +8,20 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # Hyperparameters and configuration
 INPUT_CHANNELS = 1
 NUM_ACTIONS = 64
 BATCH_SIZE = 128
 GAMMA = 0.99
-LEARNING_RATE = 0.001
-MEMORY_SIZE = 100000
+LEARNING_RATE = 0.01  # Increased initial learning rate
+MEMORY_SIZE = 50000
 TARGET_UPDATE = 1000
 SAVE_INTERVAL = 10000
 PRINT_INTERVAL = 1000
 EPSILON_START = 0.9
-EPSILON_END = 0.001
+EPSILON_END = 0.0001
 EPSILON_DECAY = 0.99999
 NEGATIVE_REWARD_TRAINING = 1
 SERVER_ADDRESS = ("localhost", 4242)
@@ -47,18 +48,16 @@ class ConvDQN(nn.Module):
             nn.ReLU(),
             nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.Flatten(),
         )
         self.fc = nn.Sequential(
             nn.Linear(128 * 8 * 8, 512),
-            nn.ReLU(),
-            nn.Linear(512, 512),
             nn.ReLU(),
             nn.Linear(512, num_actions),
         )
 
     def forward(self, x):
         x = self.conv(x)
+        x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
 
@@ -109,9 +108,12 @@ def initialize_model(input_channels, num_actions):
     target_net = ConvDQN(input_channels, num_actions).to(device)
     target_net.load_state_dict(policy_net.state_dict())
     target_net.eval()
-    optimizer = optim.Adam(policy_net.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.AdamW(policy_net.parameters(), lr=LEARNING_RATE)
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.7, patience=5
+    )  # Adjusted scheduler parameters
     criterion = nn.MSELoss()
-    return policy_net, target_net, optimizer, criterion
+    return policy_net, target_net, optimizer, scheduler, criterion
 
 
 def save_model(model, filename):
@@ -127,7 +129,15 @@ def process_observation(observation):
 
 
 def train_on_data(
-    data, policy_net, target_net, optimizer, criterion, device, batch_size, gamma=GAMMA
+    data,
+    policy_net,
+    target_net,
+    optimizer,
+    scheduler,
+    criterion,
+    device,
+    batch_size,
+    gamma=GAMMA,
 ):
     if len(data) < batch_size:
         return None
@@ -186,7 +196,9 @@ def train_on_data(
 
     optimizer.zero_grad()
     loss.backward()
+    torch.nn.utils.clip_grad_norm_(policy_net.parameters(), max_norm=1.0)
     optimizer.step()
+    scheduler.step(loss)
 
     # Return the loss value
     return loss.item()
@@ -194,7 +206,7 @@ def train_on_data(
 
 def main():
     global policy_net
-    policy_net, target_net, optimizer, criterion = initialize_model(
+    policy_net, target_net, optimizer, scheduler, criterion = initialize_model(
         INPUT_CHANNELS, NUM_ACTIONS
     )
     memory = deque(maxlen=MEMORY_SIZE)
@@ -268,13 +280,13 @@ def main():
                         policy_net,
                         target_net,
                         optimizer,
+                        scheduler,
                         criterion,
                         device,
                         BATCH_SIZE,
                     )
                     if train_on_data_loss is not None:
                         latest_train_on_data_loss = train_on_data_loss
-                        print(memory.__len__())
                     last_batch_total_steps = (
                         total_steps  # Update the last batch total steps
                     )
@@ -307,8 +319,10 @@ def main():
                     and total_steps != last_print_total_steps
                 ):
                     avg_reward = total_reward / PRINT_INTERVAL
+                    for param_group in optimizer.param_groups:
+                        current_lr = param_group["lr"]
                     print(
-                        f"Step: {total_steps}, Epsilon: {epsilon:.4f}, Avg Reward: {avg_reward:.4f}, Train loss: {latest_train_on_data_loss}"
+                        f"Step: {total_steps}, Epsilon: {epsilon:.4f}, Avg Reward: {avg_reward:.4f}, Train loss: {latest_train_on_data_loss}, Learning rate: {current_lr}"
                     )
                     total_reward = 0  # Reset total reward
                     last_print_total_steps = total_steps  # Update the last print step
@@ -323,9 +337,9 @@ def main():
 
     finally:
         print("Closing socket")
-        save_model(policy_net, "policy_net_final.pth")
-        print("Final model saved")
         sock.close()
+        print("Final model saved")
+        save_model(policy_net, "final_policy_net.pth")
 
 
 if __name__ == "__main__":
