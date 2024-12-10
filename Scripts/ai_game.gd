@@ -10,7 +10,7 @@ extends Node2D
 @onready var mines_left: TextEdit = $UI/MinesLeft
 @onready var wins: TextEdit = $UI/Wins
 @onready var generation: TextEdit = $UI/Generation
-@onready var ai_controller: Node = %ai_controller
+@onready var ai_controller: Node2D = $AIController2D
 
 var previous_time_spent = -1.0
 var previous_mines_left = -1
@@ -33,15 +33,6 @@ func _process(delta: float) -> void:
 	if Minesweeper.gamestatus == 1:
 		Minesweeper.gamestatus = 0
 		reset()
-	
-	if previous_observation == null:
-		previous_observation = get_current_observation()
-	else:
-		var new_observation = get_current_observation()
-		ai_controller.previous_observation = previous_observation
-		ai_controller.new_observation = new_observation
-		ai_controller.send_data()
-		previous_observation = new_observation
 
 	Minesweeper.timespent += delta
 	var current_time_spent = floor(Minesweeper.timespent * 10) / 10
@@ -94,7 +85,7 @@ func calculate_reward(current_action):
 				adjacent_to_uncovered = true
 				break
 		
-		if adjacent_to_uncovered:
+		if adjacent_to_uncovered or Minesweeper.covered_cells == Minesweeper.cells:
 			reward += 0.5  # Reward for selecting a cell near uncovered cells
 		else:
 			reward -= 0.7  # Penalize for selecting a cell not near uncovered cells
@@ -111,19 +102,6 @@ func calculate_reward(current_action):
 	return reward
 
 
-func ai_observation():
-	var obs = []
-	for cell in Minesweeper.cells:
-		if cell in Minesweeper.covered_cells:
-			obs.append(-1)
-		else:
-			if cell in Minesweeper.mines:
-				obs.append(-2)
-			else:
-				obs.append(Minesweeper.numbers[cell])
-	return obs
-
-
 func get_current_observation():
 	var observation = []
 	for cell in Minesweeper.cells:
@@ -134,3 +112,15 @@ func get_current_observation():
 		else:
 			observation.append(Minesweeper.numbers.get(cell, 0))
 	return observation
+	
+func update_board_with_action(action_pos: Vector2i):
+	if action_pos in Minesweeper.covered_cells and action_pos not in Minesweeper.flagged:
+		foreground_tiles.erase_cell(action_pos)
+		Minesweeper.covered_cells.erase(action_pos)
+		
+		if action_pos in Minesweeper.mines:
+			foreground_tiles.reveal_all_mines()
+		elif Minesweeper.numbers.get(action_pos, -1) == 0:
+			foreground_tiles.flood_fill(action_pos)
+		else:
+			foreground_tiles.set_cell(action_pos, Minesweeper.SOURCE_ID, Minesweeper.tile(str(Minesweeper.numbers[action_pos])))

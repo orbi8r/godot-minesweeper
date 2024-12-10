@@ -16,12 +16,13 @@ NUM_ACTIONS = 64
 BATCH_SIZE = 128
 GAMMA = 0.99
 LEARNING_RATE = 0.01  # Increased initial learning rate
+MIN_LEARNING_RATE = 1e-5
 MEMORY_SIZE = 50000
 TARGET_UPDATE = 1000
 SAVE_INTERVAL = 10000
 PRINT_INTERVAL = 1000
 EPSILON_START = 0.9
-EPSILON_END = 0.0001
+EPSILON_END = 0.001
 EPSILON_DECAY = 0.99999
 NEGATIVE_REWARD_TRAINING = 1
 SERVER_ADDRESS = ("localhost", 4242)
@@ -331,6 +332,11 @@ def main():
                     save_model(policy_net, f"policy_net_{total_steps}.pth")
                     print(f"Model saved at step {total_steps}")
                     last_save_step = total_steps  # Update the last save step
+
+                # Update learning rate
+                optimizer.param_groups[0]["lr"] = max(
+                    optimizer.param_groups[0]["lr"], MIN_LEARNING_RATE
+                )
 
             except json.JSONDecodeError as e:
                 print("Error decoding JSON from Godot:", e)
