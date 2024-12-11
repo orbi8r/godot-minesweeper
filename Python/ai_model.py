@@ -13,10 +13,11 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 # Hyperparameters and configuration
 INPUT_CHANNELS = 1
 NUM_ACTIONS = 64
-BATCH_SIZE = 128
+BATCH_SIZE = 512
 GAMMA = 0.99
-LEARNING_RATE = 0.01  # Increased initial learning rate
-MEMORY_SIZE = 50000
+LEARNING_RATE = 0.001  # Reduced learning rate
+MIN_LEARNING_RATE = 1e-5
+MEMORY_SIZE = 409600  # Ensured single definition
 TARGET_UPDATE = 1000
 SAVE_INTERVAL = 10000
 PRINT_INTERVAL = 1000
@@ -170,9 +171,6 @@ def train_on_data(
         processed_experiences.add(
             experience_hash
         )  # Add to the set of processed experiences
-
-    if len(filtered_batch) < batch_size:
-        return None
 
     states, actions, rewards, next_states, dones = zip(*filtered_batch)
 

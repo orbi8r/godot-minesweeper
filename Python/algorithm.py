@@ -25,24 +25,85 @@ def algorithm_output(observation):
                     if x >= 0 and x < 8 and y >= 0 and y < 8:
                         if grid[x][y] == -1:
                             number_of_covered_neighbours += 1
+                if number_of_covered_neighbours != 0:
+                    for d in direction:
+                        x = i + d[0]
+                        y = j + d[1]
+                        if 0 <= x < 8 and 0 <= y < 8:
+                            if grid[x][y] == -1:
+                                probability = grid[i][j] / number_of_covered_neighbours
+                                action[x][y] = max(action[x][y], probability)
+
+    for i in range(8):
+        for j in range(8):
+            if action[i][j] == 1:
+                grid[i][j] = -2
                 for d in direction:
                     x = i + d[0]
                     y = j + d[1]
                     if x >= 0 and x < 8 and y >= 0 and y < 8:
-                        action[x][y] = max(
-                            action[x][y], grid[i][j] / number_of_covered_neighbours
-                        )
+                        if grid[x][y] > 0:
+                            grid[x][y] -= 1
+
+    action = [[0] * 8 for i in range(8)]
+
+    for i in range(8):
+        for j in range(8):
+            if grid[i][j] == 0:
+                for d in direction:
+                    x = i + d[0]
+                    y = j + d[1]
+                    if x >= 0 and x < 8 and y >= 0 and y < 8:
+                        if grid[x][y] == -1:
+                            return (x + 1, y + 1)
+            elif grid[i][j] != -1 and grid[i][j] != -2:
+                number_of_covered_neighbours = 0
+                for d in direction:
+                    x = i + d[0]
+                    y = j + d[1]
+                    if x >= 0 and x < 8 and y >= 0 and y < 8:
+                        if grid[x][y] == -1:
+                            number_of_covered_neighbours += 1
+                if number_of_covered_neighbours != 0:
+                    for d in direction:
+                        x = i + d[0]
+                        y = j + d[1]
+                        if 0 <= x < 8 and 0 <= y < 8:
+                            if grid[x][y] == -1:
+                                probability = grid[i][j] / number_of_covered_neighbours
+                                action[x][y] = max(action[x][y], probability)
 
     min_value = 2
     min_coords = []
     for i in range(8):
         for j in range(8):
             if action[i][j] < min_value and grid[i][j] == -1:
-                min_value = action[i][j]
-                min_coords = [(i + 1, j + 1)]
-            elif action[i][j] == min_value and grid[i][j] == -1:
-                min_coords.append((i + 1, j + 1))
-    return random.choice(min_coords)
+                for d in direction:
+                    x = i + d[0]
+                    y = j + d[1]
+                    if x >= 0 and x < 8 and y >= 0 and y < 8:
+                        if grid[x][y] != -1:
+                            min_value = action[i][j]
+                            break
+    for i in range(8):
+        for j in range(8):
+            if action[i][j] == min_value and grid[i][j] == -1:
+                for d in direction:
+                    x = i + d[0]
+                    y = j + d[1]
+                    if x >= 0 and x < 8 and y >= 0 and y < 8:
+                        if grid[x][y] != -1:
+                            min_coords.append((i + 1, j + 1))
+                            break
+    if min_coords.__len__() == 0:
+        for i in range(8):
+            for j in range(8):
+                if grid[i][j] == -1:
+                    min_coords.append((i + 1, j + 1))
+    if min_coords.__len__() == 0:
+        return (0, 0)
+    else:
+        return random.choice(min_coords)
 
 
 def main():
@@ -74,6 +135,7 @@ def main():
 
                 # Process the observation to generate output
                 output = algorithm_output(new_observation)
+                print(f"Output: {output}")
                 output_message = json.dumps(
                     {
                         "action": {"x": output[0], "y": output[1]},
